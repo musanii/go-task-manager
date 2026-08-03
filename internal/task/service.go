@@ -41,3 +41,17 @@ func (s *Service) Complete(id int) error {
 	return errors.New("task not found")
 
 }
+
+func (s *Service) Delete(id int) error {
+	for i, task := range s.tasks {
+		if task.ID == id {
+			s.tasks = append(
+				s.tasks[:i],
+				s.tasks[i+1:]...,
+			)
+
+			return nil
+		}
+	}
+	return errors.New("task not found")
+}
