@@ -4,6 +4,7 @@ import "errors"
 
 type Service struct {
 	nextID int
+	tasks  []Task
 }
 
 func NewService() *Service {
@@ -21,6 +22,11 @@ func (s *Service) Create(title string) (Task, error) {
 		Title:     title,
 		Completed: false,
 	}
+	s.tasks = append(s.tasks, task)
 	s.nextID++
 	return task, nil
+}
+
+func (s *Service) List() []Task {
+	return s.tasks
 }
