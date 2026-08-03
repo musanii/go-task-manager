@@ -3,7 +3,7 @@ package task
 import "testing"
 
 func TestServiceCreate(t *testing.T) {
-	service := NewService()
+	service := newTestService(t)
 	got, err := service.Create("Learn Go")
 
 	if err != nil {
@@ -28,7 +28,7 @@ func TestServiceCreate(t *testing.T) {
 }
 
 func TestServiceCreateRejectsEmptyTitle(t *testing.T) {
-	service := NewService()
+	service := newTestService(t)
 
 	_, err := service.Create("")
 	if err == nil {
@@ -45,7 +45,7 @@ func TestServiceCreateRejectsEmptyTitle(t *testing.T) {
 }
 
 func TestServiceList(t *testing.T) {
-	service := NewService()
+	service := newTestService(t)
 
 	_, err := service.Create("Learn Go")
 	if err != nil {
@@ -83,7 +83,7 @@ func TestServiceList(t *testing.T) {
 }
 
 func TestServiceComplete(t *testing.T) {
-	service := NewService()
+	service := newTestService(t)
 
 	createdTask, err := service.Create("Learn Go")
 	if err != nil {
@@ -109,7 +109,7 @@ func TestServiceComplete(t *testing.T) {
 }
 
 func TestServiceCompleteReturnsErrorForMissingTask(t *testing.T) {
-	service := NewService()
+	service := newTestService(t)
 
 	err := service.Complete(99)
 
@@ -129,7 +129,7 @@ func TestServiceCompleteReturnsErrorForMissingTask(t *testing.T) {
 }
 
 func TestServiceDelete(t *testing.T) {
-	service := NewService()
+	service := newTestService(t)
 
 	first, err := service.Create("Learn Go")
 	if err != nil {
@@ -171,17 +171,17 @@ func TestServiceDelete(t *testing.T) {
 	}
 }
 
-func TestServiceDeleteReturnsErrorForMissingTask(t *testing.T){
-	service := NewService()
+func TestServiceDeleteReturnsErrorForMissingTask(t *testing.T) {
+	service := newTestService(t)
 
 	err := service.Delete(99)
-	if err == nil{
+	if err == nil {
 		t.Fatal("expected an error got nil")
 	}
 
 	expected := "task not found"
 
-	if err.Error() != expected{
+	if err.Error() != expected {
 		t.Errorf(
 			"expected error %q, got %q",
 			expected,

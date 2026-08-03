@@ -3,14 +3,31 @@ package task
 import "errors"
 
 type Service struct {
-	nextID int
-	tasks  []Task
+	repository Repository
+	nextID     int
+	tasks      []Task
 }
 
-func NewService() *Service {
-	return &Service{
-		nextID: 1,
+func NewService(repository Repository) (*Service, error) {
+
+	tasks, err := repository.Load()
+	if err != nil {
+		return nil, err
 	}
+
+	nextID := 1
+
+	for _, currentTask := range tasks {
+		if currentTask.ID >= nextID {
+			nextID = currentTask.ID + 1
+		}
+	}
+	return &Service{
+		repository: repository,
+		nextID:     nextID,
+		tasks:      tasks,
+	}, nil
+
 }
 
 func (s *Service) Create(title string) (Task, error) {
@@ -23,6 +40,10 @@ func (s *Service) Create(title string) (Task, error) {
 		Completed: false,
 	}
 	s.tasks = append(s.tasks, task)
+
+	if err := s.repository.Save(s.tasks); err != nil {
+		return Task{}, err
+	}
 	s.nextID++
 	return task, nil
 }
@@ -35,6 +56,10 @@ func (s *Service) Complete(id int) error {
 	for i := range s.tasks {
 		if s.tasks[i].ID == id {
 			s.tasks[i].Completed = true
+
+			if err := s.repository.Save(s.tasks); err != nil {
+				return err
+			}
 			return nil
 		}
 	}
@@ -49,6 +74,9 @@ func (s *Service) Delete(id int) error {
 				s.tasks[:i],
 				s.tasks[i+1:]...,
 			)
+			if err := s.repository.Save(s.tasks); err != nil {
+				return err
+			}
 
 			return nil
 		}

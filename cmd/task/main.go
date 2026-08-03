@@ -9,7 +9,12 @@ import (
 )
 
 func main() {
-	service := task.NewService()
+	repository := task.NewJSONRepository("tasks.json")
+	service, err := task.NewService(repository)
+	if err != nil {
+		fmt.Println("Error loading tasks:", err)
+		return
+	}
 
 	args := os.Args
 
