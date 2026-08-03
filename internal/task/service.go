@@ -30,3 +30,14 @@ func (s *Service) Create(title string) (Task, error) {
 func (s *Service) List() []Task {
 	return s.tasks
 }
+
+func (s *Service) Complete(id int) error {
+	for i := range s.tasks {
+		if s.tasks[i].ID == id {
+			s.tasks[i].Completed = true
+			return nil
+		}
+	}
+	return errors.New("task not found")
+
+}

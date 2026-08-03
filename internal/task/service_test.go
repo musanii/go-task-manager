@@ -81,3 +81,49 @@ func TestServiceList(t *testing.T) {
 		)
 	}
 }
+
+func TestServiceComplete(t *testing.T) {
+	service := NewService()
+
+	createdTask, err := service.Create("Learn Go")
+	if err != nil {
+		t.Fatalf("expected no error, got %v", err)
+	}
+
+	err = service.Complete(createdTask.ID)
+	if err != nil {
+		t.Fatalf("expected no error, got %v", err)
+	}
+
+	tasks := service.List()
+
+	if len(tasks) != 1 {
+		t.Fatalf(
+			"expected 1 task, got %d",
+			len(tasks),
+		)
+	}
+	if !tasks[0].Completed {
+		t.Error("expected task to be completed")
+	}
+}
+
+func TestServiceCompleteReturnsErrorForMissingTask(t *testing.T){
+	service := NewService()
+
+	err := service.Complete(99)
+
+	if err == nil{
+		t.Fatalf("expected an error, got nil")
+	}
+
+	expected := "task not found"
+
+	if err.Error() != expected {
+		t.Errorf(
+			"expected error %q, got %q",
+			expected,
+			err.Error(),
+		)
+	}
+}
