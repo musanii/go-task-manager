@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"os"
+	"strconv"
 	"strings"
 
 	"github.com/musanii/go-task-manager/internal/task"
@@ -35,6 +36,9 @@ func main() {
 
 	case "list":
 		listTasks(service)
+
+	case "complete":
+		completeTask(service, args[2:])
 
 	default:
 		fmt.Printf("Unknown command: %s\n", command)
@@ -79,4 +83,23 @@ func listTasks(service *task.Service) {
 			currentTask.Title,
 		)
 	}
+}
+
+func completeTask(service *task.Service, args []string) {
+	if len(args) != 1 {
+		fmt.Println("Usage: task complete <id>")
+		return
+	}
+	id, err := strconv.Atoi(args[0])
+	if err != nil {
+		fmt.Println("Task ID must be a number")
+		return
+	}
+
+	err = service.Complete(id)
+	if err != nil {
+		fmt.Println("Error:", err)
+		return
+	}
+	fmt.Printf("Task %d completed\n", id)
 }
