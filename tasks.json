@@ -3,10 +3,5 @@
   "id": 1,
   "title": "Learn Go",
   "completed": true
- },
- {
-  "id": 2,
-  "title": "Write Go tests",
-  "completed": false
  }
 ]

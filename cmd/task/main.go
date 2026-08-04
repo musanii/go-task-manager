@@ -40,6 +40,9 @@ func main() {
 	case "complete":
 		completeTask(service, args[2:])
 
+	case "delete":
+		deleteTask(service, args[2:])
+
 	default:
 		fmt.Printf("Unknown command: %s\n", command)
 
@@ -102,4 +105,26 @@ func completeTask(service *task.Service, args []string) {
 		return
 	}
 	fmt.Printf("Task %d completed\n", id)
+}
+
+func deleteTask(service *task.Service, args []string) {
+
+	if len(args) != 1 {
+		fmt.Println("Usage: task delete <id>")
+		return
+	}
+
+	id, err := strconv.Atoi(args[0])
+	if err != nil {
+		fmt.Println("Task ID must be a number")
+		return
+	}
+
+	err = service.Delete(id)
+	if err != nil {
+		fmt.Println("Error:", err)
+		return
+	}
+
+	fmt.Printf("Task %d deleted\n", id)
 }
