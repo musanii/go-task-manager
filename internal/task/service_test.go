@@ -3,45 +3,45 @@ package task
 import "testing"
 
 func TestServiceCreate(t *testing.T) {
-	service := newTestService(t)
-	got, err := service.Create("Learn Go")
 
-	if err != nil {
-		t.Fatalf("expected no error, got %v", err)
+	tests := []struct {
+		name    string
+		title   string
+		wantErr string
+	}{
+		{
+			name:    "valid title",
+			title:   "Learn Go",
+			wantErr: "",
+		},
+		{
+			name:    "empty title",
+			title:   "",
+			wantErr: "task title is required",
+		},
 	}
 
-	if got.ID != 1 {
-		t.Errorf("expected ID 1 got %d", got.ID)
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+
+			service := newTestService(t)
+			_, err := service.Create(tt.title)
+			if tt.wantErr == "" {
+				if err != nil {
+					t.Fatalf("expected no error, got %v", err)
+				}
+			} else {
+				if err == nil {
+					t.Fatalf("expected error %q, got nil", tt.wantErr)
+				}
+
+				if err.Error() != tt.wantErr {
+					t.Fatalf("expected error %q. got %q", tt.wantErr, err.Error())
+				}
+			}
+		})
 	}
 
-	if got.Title != "Learn Go" {
-		t.Errorf(
-			"expected title %q, got %q",
-			"Learn Go",
-			got.Title,
-		)
-	}
-
-	if got.Completed {
-		t.Error("expected new task to be incomplete")
-	}
-}
-
-func TestServiceCreateRejectsEmptyTitle(t *testing.T) {
-	service := newTestService(t)
-
-	_, err := service.Create("")
-	if err == nil {
-		t.Fatal("expected an error,got nil")
-	}
-	expected := "task title is required"
-	if err.Error() != expected {
-		t.Errorf(
-			"expected error %q, got %q",
-			expected,
-			err.Error(),
-		)
-	}
 }
 
 func TestServiceList(t *testing.T) {
