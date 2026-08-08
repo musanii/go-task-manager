@@ -25,6 +25,7 @@ func main() {
 		fmt.Println("task list")
 		fmt.Println("task complete <id>")
 		fmt.Println("task delete <id>")
+		fmt.Println(`task update <id> "new title"`)
 
 		return
 	}
@@ -39,6 +40,9 @@ func main() {
 
 	case "complete":
 		completeTask(service, args[2:])
+
+	case "update":
+		updateTask(service, args[2:])
 
 	case "delete":
 		deleteTask(service, args[2:])
@@ -127,4 +131,26 @@ func deleteTask(service *task.Service, args []string) {
 	}
 
 	fmt.Printf("Task %d deleted\n", id)
+}
+
+func updateTask(service *task.Service, args []string) {
+	if len(args) < 2 {
+		fmt.Println(`Usage: task update <id> "new title"`)
+		return
+	}
+
+	id, err := strconv.Atoi(args[0])
+	if err != nil {
+		fmt.Println("Task ID must be a number")
+		return
+
+	}
+	title := strings.Join(args[1:], " ")
+
+	err = service.Update(id, title)
+	if err != nil {
+		fmt.Println("Error:", err)
+		return
+	}
+	fmt.Printf("Task %d updated: %s\n", id, title)
 }

@@ -1,7 +1,12 @@
 [
  {
   "id": 1,
-  "title": "Learn Go",
+  "title": "Learn Go properly",
   "completed": true
+ },
+ {
+  "id": 2,
+  "title": "Learn Go",
+  "completed": false
  }
 ]

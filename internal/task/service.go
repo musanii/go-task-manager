@@ -83,3 +83,21 @@ func (s *Service) Delete(id int) error {
 	}
 	return errors.New("task not found")
 }
+
+func (s *Service) Update(id int, title string) error {
+	if title == "" {
+		return errors.New("task title is required")
+	}
+	tasks, err := s.repository.Load()
+	if err != nil {
+		return err
+	}
+
+	for i := range tasks {
+		if tasks[i].ID == id {
+			tasks[i].Title = title
+			return s.repository.Save(tasks)
+		}
+	}
+	return errors.New("task not found")
+}

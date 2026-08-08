@@ -189,3 +189,31 @@ func TestServiceDeleteReturnsErrorForMissingTask(t *testing.T) {
 		)
 	}
 }
+
+func TestServiceUpdate(t *testing.T) {
+	service := newTestService(t)
+
+	createdTask, err := service.Create("Learn Go")
+
+	if err != nil {
+		t.Fatalf("expected no error, got %v", err)
+	}
+
+	err = service.Update(createdTask.ID, "Learn Go properly")
+	if err != nil {
+		t.Fatalf("expected no error, got %v", err)
+	}
+	tasks := service.List()
+
+	if len(tasks) != 1 {
+		t.Fatalf("expected 1 task, got %d", len(tasks))
+	}
+
+	if tasks[0].Title != "Learn Go properly" {
+		t.Errorf(
+			"expected title %q, got %q",
+			"Learn Go properly",
+			tasks[0].Title,
+		)
+	}
+}
