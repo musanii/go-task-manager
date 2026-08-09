@@ -16,8 +16,9 @@ func main() {
 	repository, err := task.NewRepository(
 		cfg.StorageType,
 		cfg.TaskFile,
+		cfg.DatabaseURL,
 	)
-	if err != nil{
+	if err != nil {
 		fmt.Println("Error:", err)
 		return
 	}

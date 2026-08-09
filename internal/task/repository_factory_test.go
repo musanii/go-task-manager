@@ -19,14 +19,18 @@ func TestNewRepository(t *testing.T) {
 			wantErr:     true,
 		},
 		{
-			name:        "postgres repository not implemented",
+			name:        "postgres repository",
 			storageType: "postgres",
 			wantErr:     true,
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			repo, err := NewRepository(tt.storageType, "test-tasks.json")
+			repo, err := NewRepository(
+				tt.storageType,
+				 "test-tasks.json",
+				"postgres://postgres:test@localhost:5432/task_manager_test",
+			)
 
 			if (err != nil) != tt.wantErr {
 				t.Fatalf(
