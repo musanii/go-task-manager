@@ -6,11 +6,22 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/musanii/go-task-manager/internal/config"
 	"github.com/musanii/go-task-manager/internal/task"
 )
 
 func main() {
-	repository := task.NewJSONRepository("tasks.json")
+
+	cfg := config.Load()
+	repository, err := task.NewRepository(
+		cfg.StorageType,
+		cfg.TaskFile,
+	)
+	if err != nil{
+		fmt.Println("Error:", err)
+		return
+	}
+
 	service, err := task.NewService(repository)
 	if err != nil {
 		fmt.Println("Error loading tasks:", err)
