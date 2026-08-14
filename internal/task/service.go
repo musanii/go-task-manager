@@ -4,28 +4,13 @@ import "errors"
 
 type Service struct {
 	repository Repository
-	nextID     int
-	tasks      []Task
+	
 }
 
 func NewService(repository Repository) (*Service, error) {
 
-	tasks, err := repository.Load()
-	if err != nil {
-		return nil, err
-	}
-
-	nextID := 1
-
-	for _, currentTask := range tasks {
-		if currentTask.ID >= nextID {
-			nextID = currentTask.ID + 1
-		}
-	}
 	return &Service{
 		repository: repository,
-		nextID:     nextID,
-		tasks:      tasks,
 	}, nil
 
 }
@@ -35,69 +20,42 @@ func (s *Service) Create(title string) (Task, error) {
 		return Task{}, errors.New("task title is required")
 	}
 	task := Task{
-		ID:        s.nextID,
+		
 		Title:     title,
 		Completed: false,
 	}
-	s.tasks = append(s.tasks, task)
-
-	if err := s.repository.Save(s.tasks); err != nil {
-		return Task{}, err
-	}
-	s.nextID++
-	return task, nil
+	return s.repository.Create(task)
 }
 
-func (s *Service) List() []Task {
-	return s.tasks
+func (s *Service) List() ([]Task, error) {
+	return s.repository.List()
 }
 
 func (s *Service) Complete(id int) error {
-	for i := range s.tasks {
-		if s.tasks[i].ID == id {
-			s.tasks[i].Completed = true
-
-			if err := s.repository.Save(s.tasks); err != nil {
-				return err
-			}
-			return nil
-		}
+	task, err := s.repository.Get(id)
+	if err != nil {
+		return err
 	}
-	return errors.New("task not found")
+
+	task.Completed= true
+	return s.repository.Update(task)
 
 }
 
 func (s *Service) Delete(id int) error {
-	for i, task := range s.tasks {
-		if task.ID == id {
-			s.tasks = append(
-				s.tasks[:i],
-				s.tasks[i+1:]...,
-			)
-			if err := s.repository.Save(s.tasks); err != nil {
-				return err
-			}
-
-			return nil
-		}
-	}
-	return errors.New("task not found")
+	return s.repository.Delete(id)
 }
 
 func (s *Service) Update(id int, title string) error {
 	if title == "" {
 		return errors.New("task title is required")
 	}
-	tasks, err := s.repository.Load()
+	task, err := s.repository.Get(id)
 	if err != nil {
 		return err
 	}
+	task.Title = title
+	return s.repository.Update(task)
 
-	for i := range tasks {
-		if tasks[i].ID == id {
-			tasks[i].Title = title
-			return s.repository.Save(tasks)
-		}
-	}
-	return errors.New("task not found")
+	
 }

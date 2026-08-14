@@ -56,7 +56,11 @@ func TestServiceList(t *testing.T) {
 	if err != nil {
 		t.Fatalf("expected no error, got %v", err)
 	}
-	tasks := service.List()
+	tasks, err := service.List()
+
+	if err != nil{
+		t.Fatalf("expected no error, got %v", err)
+	}
 
 	if len(tasks) != 2 {
 		t.Fatalf(
@@ -95,7 +99,11 @@ func TestServiceComplete(t *testing.T) {
 		t.Fatalf("expected no error, got %v", err)
 	}
 
-	tasks := service.List()
+	tasks, err := service.List()
+
+	if err != nil {
+		t.Fatalf("expected no error, got %v",err)
+	}
 
 	if len(tasks) != 1 {
 		t.Fatalf(
@@ -149,7 +157,10 @@ func TestServiceDelete(t *testing.T) {
 		t.Fatalf("expected no error, got %v", err)
 	}
 
-	tasks := service.List()
+	tasks, err := service.List()
+	if err != nil {
+		t.Fatalf("expected no error, got %v",err)
+	}
 
 	if len(tasks) != 2 {
 		t.Fatalf("expected 2 tasks, got %d", len(tasks))
@@ -203,7 +214,10 @@ func TestServiceUpdate(t *testing.T) {
 	if err != nil {
 		t.Fatalf("expected no error, got %v", err)
 	}
-	tasks := service.List()
+	tasks, err := service.List()
+	if err != nil {
+		t.Fatalf("expected no error, got %v",err)
+	}
 
 	if len(tasks) != 1 {
 		t.Fatalf("expected 1 task, got %d", len(tasks))

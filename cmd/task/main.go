@@ -81,7 +81,11 @@ func addTask(service *task.Service, args []string) {
 }
 
 func listTasks(service *task.Service) {
-	tasks := service.List()
+	tasks, err := service.List()
+	if err != nil{
+		fmt.Println("Error", err)
+		return
+	}
 
 	if len(tasks) == 0 {
 		fmt.Println("No tasks found.")

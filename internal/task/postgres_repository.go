@@ -2,6 +2,7 @@ package task
 
 import (
 	"context"
+	"errors"
 
 	"github.com/jackc/pgx/v5"
 )
@@ -16,37 +17,36 @@ func NewPostgresRepository(conn *pgx.Conn) *PostgresRepository {
 	}
 }
 
-func (r *PostgresRepository) Save(tasks []Task) error {
+
+
+func (r *PostgresRepository) Create(task Task) (Task, error) {
 	ctx := context.Background()
 
-	_, err := r.db.Exec(ctx, "DELETE FROM tasks")
+	row := r.db.QueryRow(
+		ctx,
+		`INSERT INTO tasks (title,completed)
+		VALUES ($1,$2)
+		RETURNING id`,
+		task.Title,
+		task.Completed,
+	)
 
-	if err != nil {
-		return err
-	}
+	if err := row.Scan(&task.ID); err != nil {
+		return Task{}, err
 
-	for _, task := range tasks {
-		_, err := r.db.Exec(
-			ctx,
-			"INSERT INTO tasks (id,title,completed) VALUES ($1,$2,$3)",
-			task.ID,
-			task.Title,
-			task.Completed,
-		)
-		if err != nil {
-			return err
-		}
 	}
-	return nil
+	return task, nil
+
 }
 
-func (r *PostgresRepository) Load() ([]Task, error) {
+func (r *PostgresRepository) List() ([]Task, error) {
 	ctx := context.Background()
 
 	rows, err := r.db.Query(
 		ctx,
-		"SELECT id, title, completed FROM tasks ORDER BY id",
+		`SELECT id, title, completed FROM tasks ORDER BY id`,
 	)
+
 	if err != nil {
 		return nil, err
 	}
@@ -55,26 +55,86 @@ func (r *PostgresRepository) Load() ([]Task, error) {
 
 	var tasks []Task
 
-	for rows.Next() {
+	for rows.Next(){
 		var task Task
 
-		err := rows.Scan(
+		if err := rows.Scan(
 			&task.ID,
 			&task.Title,
 			&task.Completed,
-		)
 
-		if err != nil {
+		); err != nil {
 			return nil, err
 		}
-
-		tasks = append(tasks, task)
+		tasks = append(tasks,task)
 	}
 
 	if err := rows.Err(); err != nil {
 		return nil, err
 	}
-
 	return tasks, nil
+}
 
+func (r *PostgresRepository) Get(id int) (Task, error) {
+	ctx := context.Background()
+
+	var task Task
+
+	err := r.db.QueryRow(
+		ctx,
+		`SELECT id,title,completed FROM tasks where id=$1`,
+		id,
+	).Scan(
+		&task.ID,
+		&task.Title,
+		&task.Completed,
+	)
+
+	if err != nil {
+		if err == pgx.ErrNoRows {
+			return Task{}, errors.New("task not found")
+		}
+		return Task{}, err
+	}
+	return task, nil
+}
+
+func(r *PostgresRepository)Update(task Task) error {
+	ctx := context.Background()
+
+	result, err := r.db.Exec(
+		ctx,
+		`UPDATE tasks SET title = $1, completed = $2 WHERE id = $3`,
+		task.Title,
+		task.Completed,
+	)
+
+	if err != nil {
+		return err
+	}
+
+	if result.RowsAffected()==0{
+		return errors.New("task not found")
+	}
+
+	return nil
+}
+
+func (r *PostgresRepository) Delete(id int) error{
+	ctx := context.Background()
+	result, err := r.db.Exec(
+		ctx,
+		"DELETE FROM tasks WHERE id = $1",
+		id,
+	)
+
+	if err != nil{
+		return err
+	}
+
+	if result.RowsAffected() == 0 {
+		return errors.New("task not found")
+	}
+
+	return nil
 }
