@@ -59,6 +59,9 @@ func main() {
 	case "delete":
 		deleteTask(service, args[2:])
 
+	case "search":
+		searchTasks(service, args[2:])
+
 	default:
 		fmt.Printf("Unknown command: %s\n", command)
 
@@ -82,7 +85,7 @@ func addTask(service *task.Service, args []string) {
 
 func listTasks(service *task.Service) {
 	tasks, err := service.List()
-	if err != nil{
+	if err != nil {
 		fmt.Println("Error", err)
 		return
 	}
@@ -169,4 +172,40 @@ func updateTask(service *task.Service, args []string) {
 		return
 	}
 	fmt.Printf("Task %d updated: %s\n", id, title)
+}
+
+func searchTasks(service *task.Service, args [] string){
+	if len(args) == 0 {
+		fmt.Println("Usage: task search <keyword>")
+		return
+
+	}
+	keyword :=  strings.Join(args, " ")
+
+	tasks, err := service.Search(keyword)
+	if err != nil {
+		fmt.Println("Error:", err)
+
+		return
+	}
+
+	if len(tasks) == 0 {
+		fmt.Println("No tasks found.")
+		return
+	}
+
+	for _, currentTask := range tasks {
+		status := "[ ]"
+
+		if currentTask.Completed {
+			status = "[X]"
+		}
+
+		fmt.Printf(
+			"%d %s %s\n",
+			currentTask.ID,
+			status,
+			currentTask.Title,
+		)
+	}
 }

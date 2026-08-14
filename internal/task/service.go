@@ -1,10 +1,12 @@
 package task
 
-import "errors"
+import (
+	"errors"
+	"strings"
+)
 
 type Service struct {
 	repository Repository
-	
 }
 
 func NewService(repository Repository) (*Service, error) {
@@ -20,7 +22,7 @@ func (s *Service) Create(title string) (Task, error) {
 		return Task{}, errors.New("task title is required")
 	}
 	task := Task{
-		
+
 		Title:     title,
 		Completed: false,
 	}
@@ -37,7 +39,7 @@ func (s *Service) Complete(id int) error {
 		return err
 	}
 
-	task.Completed= true
+	task.Completed = true
 	return s.repository.Update(task)
 
 }
@@ -57,5 +59,24 @@ func (s *Service) Update(id int, title string) error {
 	task.Title = title
 	return s.repository.Update(task)
 
-	
+}
+
+func (s *Service) Search(keyword string) ([]Task, error) {
+	tasks, err := s.repository.List()
+
+	if err != nil {
+		return nil, err
+	}
+
+	var matches []Task
+
+	for _, task := range tasks {
+		if strings.Contains(
+			strings.ToLower(task.Title),
+			strings.ToLower(keyword),
+		) {
+			matches = append(matches, task)
+		}
+	}
+	return matches, nil
 }

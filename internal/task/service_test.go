@@ -58,7 +58,7 @@ func TestServiceList(t *testing.T) {
 	}
 	tasks, err := service.List()
 
-	if err != nil{
+	if err != nil {
 		t.Fatalf("expected no error, got %v", err)
 	}
 
@@ -102,7 +102,7 @@ func TestServiceComplete(t *testing.T) {
 	tasks, err := service.List()
 
 	if err != nil {
-		t.Fatalf("expected no error, got %v",err)
+		t.Fatalf("expected no error, got %v", err)
 	}
 
 	if len(tasks) != 1 {
@@ -159,7 +159,7 @@ func TestServiceDelete(t *testing.T) {
 
 	tasks, err := service.List()
 	if err != nil {
-		t.Fatalf("expected no error, got %v",err)
+		t.Fatalf("expected no error, got %v", err)
 	}
 
 	if len(tasks) != 2 {
@@ -216,7 +216,7 @@ func TestServiceUpdate(t *testing.T) {
 	}
 	tasks, err := service.List()
 	if err != nil {
-		t.Fatalf("expected no error, got %v",err)
+		t.Fatalf("expected no error, got %v", err)
 	}
 
 	if len(tasks) != 1 {
@@ -230,4 +230,93 @@ func TestServiceUpdate(t *testing.T) {
 			tasks[0].Title,
 		)
 	}
+}
+
+func TestServiceSearch(t *testing.T) {
+
+	service := newTestService(t)
+	_, err := service.Create("Learn Go")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	_, err = service.Create("Write PostgreSQL tests")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	_, err = service.Create("Build CLI")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	tasks, err := service.Search("Go")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if len(tasks) != 1 {
+		t.Fatalf("expected 1 tasks got %d", len(tasks))
+	}
+
+	if tasks[0].Title != "Learn Go" {
+		t.Errorf(
+			"expected %q, got %q",
+			"Learn Go",
+			tasks[0].Title,
+		)
+	}
+
+}
+
+func TestServiceReturnsEmptyWhenNoMatch(t *testing.T) {
+	service := newTestService(t)
+
+	_, err := service.Create("Learn Go")
+
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	_, err = service.Create("Write PostgreSQL tests")
+
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	tasks, err := service.Search("Ruby")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if len(tasks) != 0 {
+		t.Fatalf("expected 0 tasks, got %d", len(tasks))
+	}
+}
+
+func TestServiceSearchIsCaseInsensitive(t *testing.T) {
+
+	service := newTestService(t)
+
+	_,err := service.Create("Learn Go")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	tasks,err := service.Search("go")
+	 if err != nil{
+		t.Fatal(err)
+	 }
+
+	 if len(tasks) != 1 {
+		t.Fatalf("expected 1 task,  got %d", len(tasks))
+	 }
+
+	 if tasks[0].Title != "Learn Go"{
+		t.Errorf(
+			"expected %q, got %q",
+			"Learn Go",
+			tasks[0].Title,
+		)
+	 }
 }
