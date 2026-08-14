@@ -262,7 +262,8 @@ func TestServiceSearch(t *testing.T) {
 	if tasks[0].Title != "Learn Go" {
 		t.Errorf(
 			"expected %q, got %q",
-			"Learn Go",
+			"Learn Go", 
+			
 			tasks[0].Title,
 		)
 	}
