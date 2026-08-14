@@ -320,3 +320,32 @@ func TestServiceSearchIsCaseInsensitive(t *testing.T) {
 		)
 	 }
 }
+
+func TestServiceRejectsEmptyKeyword(t *testing.T)  {
+	service := newTestService(t)
+
+	_,err := service.Create(" Learn Go")
+
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	_, err = service.Search("  ")
+
+	if err == nil {
+		t.Fatal("expected search keyword error, got nil")
+	}
+
+	expected := "search keyword is required"
+	if err.Error() != expected {
+		t.Fatalf(
+			"expected error %q, got %q",
+			expected,
+			err.Error(),
+		)
+	}
+
+	
+
+	
+}

@@ -62,6 +62,12 @@ func (s *Service) Update(id int, title string) error {
 }
 
 func (s *Service) Search(keyword string) ([]Task, error) {
+
+	keyword = strings.TrimSpace(keyword)
+
+	if keyword ==""{
+		return nil, errors.New("search keyword is required")
+	}
 	tasks, err := s.repository.List()
 
 	if err != nil {
